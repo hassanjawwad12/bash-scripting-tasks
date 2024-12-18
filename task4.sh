@@ -1,41 +1,24 @@
 #!/bin/bash
 
-# Dot file path
-DOTFILE_PATH="$(pwd)/.dotfile"
+#PS1 bash variable ( defines the appearance of command prompt)
+CUSTOM_PROMPT=PS1="[\$(date +%T)] \w > "  #HH:MM:SS  , w is current working directory
+DOTFILE="$HOME/.dotfile"
 
-# Check if the dotfile exists in the current folder
-if [ -e "$DOTFILE_PATH" ]; then
-    echo "File found"
+echo "Creating or updating $DOTFILE..."
+cat > "$DOTFILE" << EOF #output storing
+# Custom PS1 prompt
+PS1='[\$(date +%T)] \w > '
+EOF
 
-    # If the file is empty
-    if [ ! -s "$DOTFILE_PATH" ]; then
-        # Write to it
-        echo "PS1='[\\t] \\w > '" >> ~/.dotfile
+BASHRC="$HOME/.bashrc" #assigned path to variable 
 
-        # Append the contents of ~/.dotfile to ~/.bashrc
-        cat ~/.dotfile >> ~/.bashrc
-    fi
-
-    # Source ~/.bashrc to apply changes
-    source ~/.bashrc
-
-    echo "Restart your terminal to see the changes"
-    exit 0
+if grep -q "source ~/.dotfile" "$BASHRC"; then  #Checks if the line source ~/.dotfile already exists in the .bashrc file
+    echo "Dotfile already sourced in $BASHRC."
+else
+    echo "Adding dotfile sourcing to $BASHRC..."
+    echo "if [ -f ~/.dotfile ]; then" >> "$BASHRC"
+    echo "    source ~/.dotfile" >> "$BASHRC" #Adds the command to source .dotfile into .bashrc.
+    echo "fi" >> "$BASHRC"
 fi
 
-# If file not found, create it and write to it
-echo "File not found. Creating the file and writing to it."
-
-# Creating the dotfile
-touch ~/.dotfile
-
-# Writing PS1 to it
-echo "PS1='[\\t] \\w > '" >> ~/.dotfile
-
-# Append the contents of ~/.dotfile to ~/.bashrc
-cat ~/.dotfile >> ~/.bashrc
-
-# Source ~/.bashrc to apply changes
-source ~/.bashrc
-
-echo "Restart your terminal to see the changes"
+echo "Done! Please restart your terminal or run 'source ~/.bashrc' to apply changes."
